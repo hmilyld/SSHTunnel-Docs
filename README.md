@@ -77,12 +77,14 @@ order: 11           # 全站顺序，决定上一篇 / 下一篇
 
 ## 部署
 
-线上地址：**https://sshtunnel.hmilyld.com**（GitHub Pages + 自定义域名）。
+线上地址：**https://sshtunnel.hmilyld.com**（Vercel 托管，连接仓库自动部署）。
 
-- 推 `main` 触发 `.github/workflows/deploy.yml`：pnpm 安装 → `astro build` → 上传 `dist/` → 发布到 Pages。
-- 自定义域名靠两处：仓库里的 `public/CNAME`（构建后进 `dist/CNAME`），以及仓库 Settings → Pages 里的 Custom domain。
-- DNS 在 Cloudflare：`sshtunnel` 的 **CNAME** 指向 `hmilyld.github.io`，**必须关闭橙色云代理**（DNS only），否则 GitHub 无法签发证书。
-- `astro.config.mjs` 的 `site` 决定 canonical / og:url，换域名时两处一起改。
+- 在 Vercel 里 **Add New → Project** 导入这个仓库即可：框架会被识别为 Astro，
+  构建命令 `pnpm build`、输出目录 `dist` 都用默认值，不需要 `vercel.json`。
+- Node 版本固定 22（`.nvmrc` 与 `package.json` 的 `engines.node`），Astro 7 要求 ≥ 22.23.4。
+- 自定义域名在 Vercel 项目 **Settings → Domains** 里添加 `sshtunnel.hmilyld.com`；
+  Cloudflare 侧建一条 CNAME：`sshtunnel` → `cname.vercel-dns.com`，代理状态建议 **DNS only**。
+- `astro.config.mjs` 的 `site` 决定 canonical 与 `og:url`，换域名时改这一处。
 
 ## 设计约定
 
