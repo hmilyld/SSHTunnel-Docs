@@ -6,6 +6,9 @@ import rehypeWrapTables from './src/lib/rehype-wrap-tables.mjs';
 
 // https://astro.build/config
 export default defineConfig({
+  // 自定义域名（GitHub Pages）：同时用于 canonical / og:url
+  site: 'https://sshtunnel.hmilyld.com',
+
   // 纯静态输出；正文来自 src/content/docs/<lang>/ 下的 Markdown
   output: 'static',
   trailingSlash: 'ignore',

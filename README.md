@@ -75,6 +75,15 @@ order: 11           # 全站顺序，决定上一篇 / 下一篇
 ---
 ```
 
+## 部署
+
+线上地址：**https://sshtunnel.hmilyld.com**（GitHub Pages + 自定义域名）。
+
+- 推 `main` 触发 `.github/workflows/deploy.yml`：pnpm 安装 → `astro build` → 上传 `dist/` → 发布到 Pages。
+- 自定义域名靠两处：仓库里的 `public/CNAME`（构建后进 `dist/CNAME`），以及仓库 Settings → Pages 里的 Custom domain。
+- DNS 在 Cloudflare：`sshtunnel` 的 **CNAME** 指向 `hmilyld.github.io`，**必须关闭橙色云代理**（DNS only），否则 GitHub 无法签发证书。
+- `astro.config.mjs` 的 `site` 决定 canonical / og:url，换域名时两处一起改。
+
 ## 设计约定
 
 - 色板：暖纸 `#f4f1e9` + 墨黑 `#16181a` + 锈红 `#9c3d1d`；深色为 `#121311` / `#e9e5d9` / `#e08a63`。

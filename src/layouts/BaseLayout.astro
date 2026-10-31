@@ -16,6 +16,12 @@ const { lang, altHref, title, description } = Astro.props;
 const t = ui[lang];
 const other = otherLocale(lang);
 const ogLocale = lang === 'zh' ? 'zh_CN' : 'en_US';
+
+// 站点部署在自定义域名的根路径；canonical 统一带结尾斜杠（GitHub Pages 的目录索引形式）
+const origin = Astro.site ?? new URL(Astro.url.origin);
+const pathname = Astro.url.pathname;
+const canonical = new URL(pathname.endsWith('/') ? pathname : `${pathname}/`, origin);
+const alternateUrl = new URL(altHref.endsWith('/') ? altHref : `${altHref}/`, origin);
 ---
 
 <!doctype html>
@@ -34,9 +40,11 @@ const ogLocale = lang === 'zh' ? 'zh_CN' : 'en_US';
     <meta property="og:description" content={description} />
     <meta property="og:locale" content={ogLocale} />
     <meta property="og:locale:alternate" content={other === 'zh' ? 'zh_CN' : 'en_US'} />
+    <meta property="og:url" content={canonical.href} />
     <meta name="twitter:card" content="summary" />
 
-    <link rel="alternate" hreflang={ui[other].htmlLang} href={altHref} />
+    <link rel="canonical" href={canonical.href} />
+    <link rel="alternate" hreflang={ui[other].htmlLang} href={alternateUrl.href} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon.png" />
