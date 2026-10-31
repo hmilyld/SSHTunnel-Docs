@@ -1,0 +1,93 @@
+---
+import Mark from './Mark.astro';
+import { site } from '../data/site';
+import { ui, type Locale } from '../i18n/ui';
+import { docHref, getDocs, slugOf } from '../lib/docs';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+const siteName = lang === 'zh' ? site.name : site.nameEn;
+
+const docs = await getDocs(lang);
+const pick = (slugs: string[]) =>
+  slugs
+    .map((slug) => docs.find((doc) => slugOf(doc.id) === slug))
+    .filter((doc): doc is NonNullable<typeof doc> => Boolean(doc));
+
+const docLinks = pick(['overview', 'install', 'tunnels', 'reference']);
+const year = 2026;
+---
+
+<footer class="mt-16 border-t border-line">
+  <div class="mx-auto max-w-[86rem] px-5 sm:px-8">
+    <div class="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr]">
+      <div class="max-w-[22rem]">
+        <div class="flex items-center gap-2.5">
+          <Mark size={18} class="text-accent" />
+          <span class="text-[0.9375rem] font-semibold tracking-[-0.01em]">{siteName}</span>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-muted">{t.footerTagline}</p>
+        <p class="eyebrow mt-4">Tauri 2 · Rust · React 19</p>
+      </div>
+
+      <div>
+        <p class="eyebrow">{t.footerDocs}</p>
+        <ul class="mt-3 space-y-1.5 text-sm">
+          {
+            docLinks.map((doc) => (
+              <li>
+                <a
+                  href={docHref(lang, slugOf(doc.id))}
+                  class="text-muted no-underline hover:text-ink"
+                >
+                  {doc.data.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <p class="eyebrow">{t.footerProject}</p>
+        <ul class="mt-3 space-y-1.5 text-sm">
+          <li>
+            <a href={site.repo} target="_blank" rel="noreferrer" class="text-muted no-underline hover:text-ink">
+              {t.footerSource}
+            </a>
+          </li>
+          <li>
+            <a href={site.releases} target="_blank" rel="noreferrer" class="text-muted no-underline hover:text-ink">
+              {t.footerReleases}
+            </a>
+          </li>
+          <li>
+            <a href={docHref(lang, 'develop')} class="text-muted no-underline hover:text-ink">
+              {t.footerBuild}
+            </a>
+          </li>
+          <li>
+            <a href={docHref(lang, 'faq')} class="text-muted no-underline hover:text-ink">
+              {t.footerFaq}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1.5 border-t border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+      <p class="eyebrow">
+        © {year}
+        <a href={site.authorUrl} target="_blank" rel="noreferrer" class="text-muted no-underline hover:text-ink">
+          {site.author}
+        </a>
+        · {site.license} License
+      </p>
+      <p class="eyebrow">v{site.version} · {t.footerStack}</p>
+    </div>
+  </div>
+</footer>

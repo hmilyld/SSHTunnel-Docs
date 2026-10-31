@@ -1,0 +1,262 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FlowDiagram from '../components/FlowDiagram.astro';
+import Inline from '../components/Inline.astro';
+import Shot from '../components/Shot.astro';
+import { landing } from '../data/landing';
+import { site } from '../data/site';
+import { ui, otherLocale, fmt, type Locale } from '../i18n/ui';
+import { docHref, homeHref } from '../lib/docs';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = landing[lang];
+const t = ui[lang];
+const siteName = lang === 'zh' ? site.name : site.nameEn;
+
+/** 说明文字里用 {link} 占位，拆成前后两段后插入链接 */
+const splitNote = (note: string) => note.split('{link}');
+
+const specNote = splitNote(copy.spec.note);
+const downloadNote = splitNote(copy.download.note);
+
+const threeColumns = [
+  'sm:pr-8',
+  'border-t border-line pt-8 sm:border-l sm:border-t-0 sm:px-8 sm:pt-0',
+  'border-t border-line pt-8 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0',
+];
+---
+
+<BaseLayout
+  lang={lang}
+  altHref={homeHref(otherLocale(lang))}
+  title={`${siteName} — ${lang === 'zh' ? site.tagline : site.taglineEn}`}
+  description={copy.lede}
+>
+  <main id="main">
+    <!-- ── 首屏 ─────────────────────────────────────────────── -->
+    <section class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="grid gap-12 border-b border-line py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-14 lg:py-20 xl:gap-20">
+        <div class="min-w-0 max-w-[34rem]">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <span class="eyebrow">{copy.kicker}</span>
+            <span class="h-3 w-px bg-line-strong"></span>
+            <span class="eyebrow">v{site.version}</span>
+          </div>
+
+          <h1 class="mt-5 text-[clamp(2.25rem,5vw,3.5rem)] font-semibold leading-[1.06] tracking-[-0.03em]">
+            {
+              copy.titleLines.map((line, lineIndex) => (
+                <>
+                  {lineIndex > 0 && <br />}
+                  {line.map((part) =>
+                    part.mono ? (
+                      <span class="font-mono text-[0.8em] font-normal tracking-[-0.02em]">{part.text}</span>
+                    ) : (
+                      part.text
+                    ),
+                  )}
+                </>
+              ))
+            }
+          </h1>
+
+          <p class="mt-6 max-w-[29rem] text-[1.0625rem] leading-[1.8] text-muted">{copy.lede}</p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a href={site.releases} class="btn btn-primary">
+              {copy.ctaPrimary} <span class="btn-arrow" aria-hidden="true">→</span>
+            </a>
+            <a href={docHref(lang, 'overview')} class="btn btn-ghost">{copy.ctaSecondary}</a>
+          </div>
+
+          <p class="eyebrow mt-8">{copy.platforms}</p>
+        </div>
+
+        <div class="min-w-0 lg:pt-3">
+          <FlowDiagram lang={lang} />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 界面 ─────────────────────────────────────────────── -->
+    <section class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="border-b border-line py-14 lg:py-16">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+          <div class="max-w-[32rem]">
+            <p class="eyebrow">{copy.shot.kicker}</p>
+            <h2 class="mt-3 text-[1.55rem] font-semibold leading-snug tracking-[-0.03em]">
+              {copy.shot.heading}
+            </h2>
+          </div>
+          <p class="max-w-[26rem] text-sm leading-[1.8] text-muted">{copy.shot.note}</p>
+        </div>
+        <div class="mt-8">
+          <Shot name="app" alt={copy.shot.alt} caption={copy.shot.caption} />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 三件事 ───────────────────────────────────────────── -->
+    <section class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="grid gap-8 border-b border-line py-14 sm:grid-cols-3 sm:gap-0 lg:py-16">
+        {
+          copy.three.map((item, index) => (
+            <div class={threeColumns[index]}>
+              <p class="eyebrow">
+                {item.index} — {item.title}
+              </p>
+              <p class="mt-3 text-[0.9375rem] leading-[1.8] text-muted">
+                <Inline text={item.text} />
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ── 行为约定 ─────────────────────────────────────────── -->
+    <section class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="grid gap-10 border-b border-line py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-16 lg:py-16">
+        <div>
+          <p class="eyebrow">{copy.spec.kicker}</p>
+          <h2 class="mt-3 text-[1.55rem] font-semibold leading-snug tracking-[-0.03em]">{copy.spec.heading}</h2>
+          <p class="mt-3 text-sm leading-[1.8] text-muted">
+            {specNote[0]}
+            <a
+              href={docHref(lang, 'internals')}
+              class="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-accent"
+            >
+              {copy.spec.noteLink}
+            </a>
+            {specNote[1]}
+          </p>
+        </div>
+
+        <dl class="border-t border-line-strong">
+          {
+            copy.spec.rows.map((row) => (
+              <div class="grid gap-1.5 border-b border-line py-4 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-6">
+                <dt class="eyebrow sm:pt-1">{row.label}</dt>
+                <dd class="text-[0.9375rem] leading-[1.8] text-muted">
+                  <Inline text={row.text} />
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </section>
+
+    <!-- ── 实际执行的命令 ───────────────────────────────────── -->
+    <section class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="grid gap-10 border-b border-line py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-16 lg:py-16">
+        <div>
+          <p class="eyebrow">{copy.command.kicker}</p>
+          <h2 class="mt-3 text-[1.55rem] font-semibold leading-snug tracking-[-0.03em]">
+            {copy.command.heading}
+          </h2>
+          <p class="mt-3 text-sm leading-[1.8] text-muted">
+            <Inline text={copy.command.body} />
+          </p>
+        </div>
+
+        <div>
+          <div class="border border-line bg-sunk">
+            <div class="flex items-center justify-between border-b border-line px-4 py-2">
+              <span class="eyebrow">{lang === 'zh' ? '终端 · 单行执行' : 'Terminal · one line'}</span>
+              <span class="eyebrow">zsh / pwsh</span>
+            </div>
+            <pre class="overflow-x-auto px-4 py-4 font-mono text-[0.78rem] leading-[1.9] text-muted"><code><span class="text-ink">ssh</span> -N \
+  -o <span class="text-accent">ExitOnForwardFailure=yes</span> \
+  -o <span class="text-accent">ServerAliveInterval=30</span> \
+  -o <span class="text-accent">ServerAliveCountMax=3</span> \
+  -o <span class="text-accent">ConnectTimeout=15</span> \
+  -o <span class="text-accent">StrictHostKeyChecking=accept-new</span> \
+  -o <span class="text-accent">BatchMode=yes</span> \
+  -L <span class="text-ink">127.0.0.1:4096:localhost:5432</span> \
+  <span class="text-ink">dev</span></code></pre>
+          </div>
+          <p class="mt-3 text-xs leading-relaxed text-faint">
+            <Inline text={copy.command.caption} />
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 下载 ─────────────────────────────────────────────── -->
+    <section id="download" class="mx-auto max-w-[86rem] scroll-mt-20 px-5 sm:px-8">
+      <div class="py-14 lg:py-16">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="eyebrow">{copy.download.kicker}</p>
+            <h2 class="mt-3 text-[1.55rem] font-semibold leading-snug tracking-[-0.03em]">
+              {copy.download.heading}
+            </h2>
+          </div>
+          <a href={site.releases} target="_blank" rel="noreferrer" class="btn btn-ghost">
+            {copy.download.allReleases}
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+              <path d="M3.5 2.5h6v6M9.5 2.5 2.5 9.5" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="mt-8 border-t border-line-strong">
+          <div class="flex flex-col gap-3 border-b border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm font-medium text-ink">{copy.download.windows.title}</p>
+              <p class="mt-1 font-mono text-[0.6875rem] leading-relaxed text-faint">
+                {fmt(copy.download.windows.files, { version: site.version })}
+              </p>
+            </div>
+            <a href={site.releases} target="_blank" rel="noreferrer" class="top-link shrink-0">
+              {copy.download.cta} →
+            </a>
+          </div>
+
+          <div class="flex flex-col gap-3 border-b border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm font-medium text-ink">{copy.download.mac.title}</p>
+              <p class="mt-1 font-mono text-[0.6875rem] leading-relaxed text-faint">
+                {fmt(copy.download.mac.files, { version: site.version })}
+              </p>
+            </div>
+            <a href={site.releases} target="_blank" rel="noreferrer" class="top-link shrink-0">
+              {copy.download.cta} →
+            </a>
+          </div>
+        </div>
+
+        <p class="mt-4 max-w-[42rem] text-xs leading-relaxed text-faint">
+          {downloadNote[0]}
+          <a
+            href={docHref(lang, 'develop')}
+            class="text-muted underline decoration-line-strong underline-offset-2 hover:text-ink"
+          >
+            {copy.download.noteLink}
+          </a>
+          {downloadNote[1]}
+        </p>
+      </div>
+    </section>
+
+    <!-- ── 收尾 ─────────────────────────────────────────────── -->
+    <section class="mx-auto max-w-[86rem] px-5 sm:px-8">
+      <div class="flex flex-col gap-6 border-t border-line py-14 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="eyebrow">{copy.closing.kicker}</p>
+          <p class="mt-3 max-w-[30rem] text-[1.35rem] font-medium leading-snug tracking-[-0.025em]">
+            {copy.closing.heading}
+          </p>
+        </div>
+        <a href={docHref(lang, 'quickstart')} class="btn btn-primary">
+          {copy.closing.cta} <span class="btn-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

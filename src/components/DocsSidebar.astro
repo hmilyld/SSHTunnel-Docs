@@ -1,0 +1,49 @@
+---
+import { groupOrder, groupLabels } from '../data/nav';
+import { docHref, getDocs, slugOf } from '../lib/docs';
+import { ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  currentSlug: string;
+}
+
+const { lang, currentSlug } = Astro.props;
+const t = ui[lang];
+
+const docs = await getDocs(lang);
+const groups = groupOrder
+  .map((key) => ({
+    key,
+    label: groupLabels[lang][key],
+    items: docs.filter((doc) => doc.data.group === key),
+  }))
+  .filter((group) => group.items.length > 0);
+---
+
+<nav aria-label={t.sidebarLabel} class="text-sm">
+  {
+    groups.map((group) => (
+      <div class="mb-6 last:mb-0">
+        <div class="mb-2 flex items-center gap-2.5 px-2">
+          <span class="eyebrow">{group.label}</span>
+          <span class="h-px flex-1 bg-line" />
+        </div>
+        <ul>
+          {group.items.map((doc, index) => (
+            <li>
+              <a
+                href={docHref(lang, slugOf(doc.id))}
+                class="nav-link"
+                aria-current={slugOf(doc.id) === currentSlug ? 'page' : undefined}
+              >
+                <span class="nav-index">{String(index + 1).padStart(2, '0')}</span>
+                <span>{doc.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</nav>

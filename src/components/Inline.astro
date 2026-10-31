@@ -1,0 +1,15 @@
+---
+/** 把文案里的 `反引号` 片段渲染成行内代码，避免在数据文件里写 HTML */
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+const parts = text.split('`');
+---
+
+{
+  parts.map((part, index) =>
+    index % 2 === 1 ? <code class="code-inline">{part}</code> : part,
+  )
+}

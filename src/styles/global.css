@@ -1,0 +1,639 @@
+@import 'tailwindcss';
+
+/* 深色模式由 <html class="dark"> 驱动，而不是系统偏好（页面顶部内联脚本负责首帧应用） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'SFMono-Regular', 'SF Mono', 'Cascadia Mono', Consolas, 'Liberation Mono',
+    monospace;
+}
+
+/* ── 色板：暖纸 + 墨黑 + 一点锈红 ───────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --paper: #f4f1e9;
+  --panel: #fbf9f3;
+  --sunk: #ebe7db;
+
+  --ink: #16181a;
+  --muted: #5f6259;
+  --faint: #8b8d83;
+
+  --line: #dcd6c7;
+  --line-strong: #c2bba8;
+
+  --accent: #9c3d1d;
+  --accent-soft: #f0e1d5;
+
+  --ok: #2f6a4b;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --paper: #121311;
+  --panel: #181a16;
+  --sunk: #1e201b;
+
+  --ink: #e9e5d9;
+  --muted: #a3a094;
+  --faint: #7c7a70;
+
+  --line: #2b2d27;
+  --line-strong: #41443a;
+
+  --accent: #e08a63;
+  --accent-soft: #2b1d16;
+
+  --ok: #79c396;
+}
+
+/* ── 基础 ───────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15.5px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  hr {
+    border-color: var(--line);
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--line-strong);
+    border: 3px solid var(--paper);
+    border-radius: 6px;
+  }
+}
+
+/* ── 共用部件 ───────────────────────────────────────────────────── */
+@layer components {
+  .skip-link {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 100;
+    padding: 0.5rem 0.9rem;
+    background-color: var(--ink);
+    color: var(--paper);
+    font-size: 0.8125rem;
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /* 主题按钮：两个图标靠 .dark 切换，不需要 JS 参与渲染 */
+  .icon-sun {
+    display: none;
+  }
+
+  .dark .icon-sun {
+    display: block;
+  }
+
+  .dark .icon-moon {
+    display: none;
+  }
+
+  /* 行内代码：正文里由 .doc-prose 负责，这里给首页文案用 */
+  .code-inline {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.06em 0.3em;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background-color: var(--sunk);
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  /* 应用截图：浅色 / 深色各一张，按主题切换；细线边框，不做圆角 */
+  .shot {
+    margin-block: 1.75rem;
+    border: 1px solid var(--line-strong);
+    background-color: var(--panel);
+  }
+
+  .shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .shot .shot-dark,
+  .dark .shot .shot-light {
+    display: none;
+  }
+
+  .dark .shot .shot-dark {
+    display: block;
+  }
+
+  .shot figcaption {
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.6;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  /* 小号等宽标签：文档里到处用，用来替代图标 */
+  .eyebrow {    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.66rem 1.05rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    transition:
+      background-color 140ms ease,
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+
+  .btn-primary {
+    background-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--accent);
+  }
+
+  .btn-ghost {
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+
+  .btn-ghost:hover {
+    background-color: var(--sunk);
+    border-color: var(--ink);
+  }
+
+  .btn .btn-arrow {
+    transition: transform 140ms ease;
+  }
+
+  .btn:hover .btn-arrow {
+    transform: translateX(2px);
+  }
+
+  /* 顶栏链接：当前页用一条锈红细线标记 */
+  .top-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0;
+    font-size: 0.875rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 120ms ease;
+  }
+
+  .top-link:hover {
+    color: var(--ink);
+  }
+
+  .top-link[aria-current='true'] {
+    color: var(--ink);
+  }
+
+  .top-link[aria-current='true']::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background-color: var(--accent);
+  }
+
+  /* 侧边栏条目 */
+  .nav-link {    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    padding: 0.36rem 0.75rem 0.36rem 0.7rem;
+    border-left: 2px solid transparent;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-decoration: none;
+    transition:
+      color 120ms ease,
+      background-color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .nav-link:hover {
+    color: var(--ink);
+    background-color: color-mix(in srgb, var(--sunk) 60%, transparent);
+  }
+
+  .nav-link[aria-current='page'] {
+    border-left-color: var(--accent);
+    background-color: var(--panel);
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .nav-link .nav-index {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nav-link[aria-current='page'] .nav-index {
+    color: var(--accent);
+  }
+
+  /* 正文里的行内链接 */
+  .doc-prose a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    transition: text-decoration-color 120ms ease;
+  }
+
+  .doc-prose a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+
+  /* ── 文档正文排版 ─────────────────────────────────────────────── */
+  .doc-prose {
+    font-size: 1rem;
+    line-height: 1.9;
+    color: var(--ink);
+  }
+
+  .doc-prose > * + * {
+    margin-top: 1.05rem;
+  }
+
+  .doc-prose p,
+  .doc-prose ul,
+  .doc-prose ol,
+  .doc-prose table,
+  .doc-prose pre,
+  .doc-prose blockquote,
+  .doc-prose h2,
+  .doc-prose h3,
+  .doc-prose h4 {
+    margin-block: 0;
+  }
+
+  .doc-prose h2 {
+    position: relative;
+    margin-top: 3.6rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--line);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    scroll-margin-top: 5.5rem;
+  }
+
+  .doc-prose h2::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 2.75rem;
+    height: 1px;
+    background-color: var(--accent);
+  }
+
+  .doc-prose h3 {
+    margin-top: 2.4rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.5;
+    scroll-margin-top: 5.5rem;
+  }
+
+  .doc-prose h4 {
+    margin-top: 1.9rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--muted);
+    scroll-margin-top: 5.5rem;
+  }
+
+  .doc-prose h2 + *,
+  .doc-prose h3 + *,
+  .doc-prose h4 + * {
+    margin-top: 0.85rem;
+  }
+
+  .doc-prose ul,
+  .doc-prose ol {
+    padding-left: 0;
+  }
+
+  .doc-prose ul {
+    list-style: none;
+  }
+
+  .doc-prose ul > li {
+    position: relative;
+    padding-left: 1.3rem;
+  }
+
+  .doc-prose ul > li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--line-strong);
+  }
+
+  .doc-prose ol {
+    list-style: decimal;
+    padding-left: 1.35rem;
+  }
+
+  .doc-prose ol > li {
+    padding-left: 0.35rem;
+  }
+
+  .doc-prose ol > li::marker {
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    color: var(--faint);
+  }
+
+  .doc-prose li + li {
+    margin-top: 0.35rem;
+  }
+
+  .doc-prose li > ul,
+  .doc-prose li > ol {
+    margin-top: 0.35rem;
+  }
+
+  /* 引用块当作提示框用：> **注意** 换行后接正文 */
+  .doc-prose blockquote {
+    margin-block: 1.75rem;
+    padding: 0.85rem 1.15rem 0.95rem;
+    border-left: 2px solid var(--accent);
+    background-color: var(--panel);
+    color: var(--muted);
+    font-size: 0.9375rem;
+    line-height: 1.8;
+  }
+
+  .doc-prose blockquote p + p {
+    margin-top: 0.55rem;
+  }
+
+  .doc-prose blockquote strong:first-child {
+    display: block;
+    margin-bottom: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .doc-prose blockquote strong {
+    color: var(--ink);
+  }
+
+  /* 代码 */
+  .doc-prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.84em;
+    padding: 0.1em 0.34em;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background-color: var(--sunk);
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .doc-prose pre,
+  .doc-prose .astro-code {
+    overflow-x: auto;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background-color: var(--sunk);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.75;
+    tab-size: 2;
+  }
+
+  .doc-prose pre code {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: inherit;
+    white-space: pre;
+  }
+
+  /* shiki 双主题：颜色只从变量取，背景统一用 --sunk */
+  .doc-prose .astro-code,
+  .doc-prose .astro-code span {
+    color: var(--shiki-light);
+  }
+
+  .dark .doc-prose .astro-code,
+  .dark .doc-prose .astro-code span {
+    color: var(--shiki-dark);
+  }
+
+  .dark .doc-prose pre,
+  .dark .doc-prose .astro-code {
+    background-color: var(--sunk);
+  }
+
+  /* 表格：外层 .table-scroll 负责横向滚动，table 本身保持表格布局 */
+  .doc-prose .table-scroll {
+    margin-block: 1.6rem;
+    overflow-x: auto;
+    border-top: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .doc-prose table {
+    width: 100%;
+    margin-block: 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .doc-prose thead th {
+    padding: 0.5rem 0.9rem 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .doc-prose tbody td {
+    padding: 0.62rem 0.9rem 0.62rem 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  .doc-prose tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .doc-prose td code,
+  .doc-prose th code {
+    white-space: nowrap;
+  }
+
+  .doc-prose hr {
+    margin-block: 2.5rem;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .doc-prose strong {
+    font-weight: 600;
+  }
+
+  .doc-prose del {
+    color: var(--faint);
+  }
+
+  /* 目录（右侧） */
+  .toc-link {
+    display: block;
+    padding: 0.2rem 0 0.2rem 0.7rem;
+    border-left: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    text-decoration: none;
+    transition:
+      color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .toc-link:hover {
+    color: var(--ink);
+    border-left-color: var(--line-strong);
+  }
+
+  .toc-link.is-active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  .toc-link[data-depth='3'] {
+    padding-left: 1.45rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* 关闭动画的用户跳过过渡 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

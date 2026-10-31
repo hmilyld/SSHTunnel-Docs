@@ -1,0 +1,192 @@
+---
+/**
+ * 首页右侧的转发示意图。
+ * 刻意用竖排：从上到下就是数据实际经过的顺序（本机 → ssh → 服务器）。
+ */
+import type { Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+  zh: {
+    aria: 'ssh -L 本地端口转发示意',
+    local: '本机 · 你的工具',
+    listening: 'TCP 监听中 · 每 150ms 探测',
+    client: '本机 · ssh 客户端',
+    channel: '已认证的加密通道',
+    mustBeSsh: '进程名必须是 ssh',
+    server: '服务器 · dev',
+    serverNote: '从服务器视角解析',
+  },
+  en: {
+    aria: 'ssh -L local port forwarding',
+    local: 'Local · your tool',
+    listening: 'Listening · probed every 150 ms',
+    client: 'Local · ssh client',
+    channel: 'Authenticated, encrypted',
+    mustBeSsh: 'process must be named ssh',
+    server: 'Server · dev',
+    serverNote: 'resolved from the server',
+  },
+}[lang];
+---
+
+<figure class="schematic" aria-label={copy.aria}>
+  <div class="bar">
+    <span class="eyebrow">Topology</span>
+    <span class="eyebrow">ssh -L</span>
+  </div>
+
+  <div class="body">
+    <ol class="flow">
+      <li class="node">
+        <span class="dot dot-live"></span>
+        <div>
+          <div class="node-label">{copy.local}</div>
+          <div class="node-addr">127.0.0.1:4096</div>
+          <div class="node-meta">{copy.listening}</div>
+        </div>
+      </li>
+
+      <li class="edge"><span>ssh -N -L</span></li>
+
+      <li class="node">
+        <span class="dot"></span>
+        <div>
+          <div class="node-label">{copy.client}</div>
+          <div class="node-addr">{copy.channel}</div>
+          <div class="node-meta">{copy.mustBeSsh}</div>
+        </div>
+      </li>
+
+      <li class="edge"><span>TCP over SSH</span></li>
+
+      <li class="node">
+        <span class="dot"></span>
+        <div>
+          <div class="node-label">{copy.server}</div>
+          <div class="node-addr">localhost:5432</div>
+          <div class="node-meta">{copy.serverNote}</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <div class="foot">
+    <code>ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:4096:localhost:5432 dev</code>
+  </div>
+</figure>
+
+<style>
+  .schematic {
+    min-width: 0;
+    border: 1px solid var(--line);
+    background-color: var(--panel);
+  }
+
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .body {
+    padding: 1.3rem 1.1rem 1.4rem;
+  }
+
+  .flow {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .flow::before {
+    content: '';
+    position: absolute;
+    top: 0.95rem;
+    bottom: 1.35rem;
+    left: 3px;
+    border-left: 1px dashed var(--line-strong);
+  }
+
+  .node {
+    display: flex;
+    gap: 0.95rem;
+    padding: 0.3rem 0;
+  }
+
+  .dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    margin-top: 0.55rem;
+    background-color: var(--panel);
+    border: 1px solid var(--line-strong);
+  }
+
+  .dot-live {
+    background-color: var(--ok);
+    border-color: var(--ok);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 16%, transparent);
+  }
+
+  .node-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .node-addr {
+    margin-top: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .node-meta {
+    margin-top: 0.1rem;
+    font-size: 0.75rem;
+    color: var(--faint);
+  }
+
+  .edge {
+    padding: 0.15rem 0 0.15rem 1.75rem;
+  }
+
+  .edge span {
+    display: inline-block;
+    padding: 0.08rem 0.35rem;
+    border: 1px solid var(--line);
+    background-color: var(--panel);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+  }
+
+  .foot {
+    overflow: hidden;
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .foot code {
+    display: block;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--faint);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+</style>

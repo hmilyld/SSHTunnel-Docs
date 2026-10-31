@@ -1,0 +1,36 @@
+---
+/**
+ * 应用截图：同一画面的浅色与深色两张，按 <html class="dark"> 切换。
+ * 图片在 public/shots/ 下，由真实应用窗口（1120×600 / 1120×740 @2x）截取后导出。
+ */
+interface Props {
+  name: 'app' | 'dialog';
+  alt: string;
+  caption?: string;
+}
+
+const { name, alt, caption } = Astro.props;
+const height = name === 'dialog' ? 1110 : 900;
+---
+
+<figure class="shot">
+  <img
+    src={`/shots/${name}-light.webp`}
+    alt={alt}
+    width="1680"
+    height={height}
+    class="shot-light"
+    loading="lazy"
+    decoding="async"
+  />
+  <img
+    src={`/shots/${name}-dark.webp`}
+    alt={alt}
+    width="1680"
+    height={height}
+    class="shot-dark"
+    loading="lazy"
+    decoding="async"
+  />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

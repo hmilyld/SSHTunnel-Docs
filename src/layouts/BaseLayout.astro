@@ -1,0 +1,93 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { site } from '../data/site';
+import { ui, otherLocale, type Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  altHref: string;
+  title: string;
+  description: string;
+}
+
+const { lang, altHref, title, description } = Astro.props;
+const t = ui[lang];
+const other = otherLocale(lang);
+const ogLocale = lang === 'zh' ? 'zh_CN' : 'en_US';
+---
+
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="author" content={site.author} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={lang === 'zh' ? site.name : site.nameEn} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={other === 'zh' ? 'zh_CN' : 'en_US'} />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="alternate" hreflang={ui[other].htmlLang} href={altHref} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <meta name="theme-color" content="#f4f1e9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121311" media="(prefers-color-scheme: dark)" />
+
+    <script is:inline>
+      (() => {
+        const key = 'stm-theme';
+        let dark = false;
+        try {
+          const saved = localStorage.getItem(key);
+          dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } catch {
+          dark = false;
+        }
+        document.documentElement.classList.toggle('dark', dark);
+      })();
+    </script>
+  </head>
+
+  <body class="flex min-h-screen flex-col">
+    <a href="#main" class="skip-link">{t.skipToContent}</a>
+    <SiteHeader lang={lang} altHref={altHref} />
+    <div class="flex-1">
+      <slot />
+    </div>
+    <SiteFooter lang={lang} />
+
+    <script is:inline>
+      document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+        const darkLabel = button.getAttribute('data-label-dark');
+        const lightLabel = button.getAttribute('data-label-light');
+
+        const sync = () => {
+          const dark = document.documentElement.classList.contains('dark');
+          button.setAttribute('aria-pressed', String(dark));
+          button.setAttribute('aria-label', dark ? lightLabel : darkLabel);
+        };
+
+        sync();
+        button.addEventListener('click', () => {
+          const dark = document.documentElement.classList.toggle('dark');
+          try {
+            localStorage.setItem('stm-theme', dark ? 'dark' : 'light');
+          } catch {
+            /* 隐私模式下 localStorage 可能不可用，忽略即可 */
+          }
+          sync();
+        });
+      });
+    </script>
+  </body>
+</html>

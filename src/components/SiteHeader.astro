@@ -1,0 +1,55 @@
+---
+import Mark from './Mark.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { site } from '../data/site';
+import { ui, otherLocale, type Locale } from '../i18n/ui';
+import { docHref, homeHref } from '../lib/docs';
+
+interface Props {
+  lang: Locale;
+  altHref: string;
+}
+
+const { lang, altHref } = Astro.props;
+const t = ui[lang];
+
+const path = Astro.url.pathname;
+const onDocs = path.includes('/docs');
+const siteName = lang === 'zh' ? site.name : site.nameEn;
+const downloadHref = `${homeHref(lang)}#download`;
+---
+
+<header class="sticky top-0 z-40 h-14 border-b border-line bg-paper">
+  <div class="mx-auto flex h-full max-w-[86rem] items-center gap-4 px-5 sm:px-8">
+    <a href={homeHref(lang)} class="flex items-center gap-2.5 text-ink" aria-label={`${siteName} home`}>
+      <Mark size={19} class="text-accent" />
+      <span class="text-[0.9375rem] font-semibold tracking-[-0.01em]">{siteName}</span>
+      <span class="hidden h-3 w-px bg-line-strong sm:block"></span>
+      <span class="eyebrow hidden pt-px sm:inline">{t.docsLabel}</span>
+    </a>
+
+    <nav class="ml-auto flex items-center gap-3 sm:gap-5" aria-label={t.navSite}>
+      <a href={docHref(lang, 'overview')} class="top-link" aria-current={onDocs ? 'true' : undefined}>
+        {t.navDocs}
+      </a>
+      <a href={downloadHref} class="top-link hidden sm:inline-flex">{t.navDownload}</a>
+      <a
+        href={site.repo}
+        target="_blank"
+        rel="noreferrer"
+        class="top-link hidden sm:inline-flex"
+        title="GitHub"
+      >
+        {t.navGitHub}
+        <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <path d="M3.5 2.5h6v6M9.5 2.5 2.5 9.5" />
+        </svg>
+      </a>
+      <a href={altHref} class="top-link" hreflang={otherLocale(lang)} aria-label={t.switchAria}>
+        {t.switchTo}
+      </a>
+      <span class="hidden h-4 w-px bg-line sm:block"></span>
+      <ThemeToggle labelDark={t.themeToggleDark} labelLight={t.themeToggleLight} title={t.themeTitle} />
+    </nav>
+  </div>
+</header>
